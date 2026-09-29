@@ -1,0 +1,15 @@
+{
+	"name": "dfmichelin2",
+	"properties": {
+		"trustModeClaimForMi": {
+			"value": "Disabled",
+			"editable": true
+		}
+	},
+	"location": "eastus",
+	"identity": {
+		"type": "SystemAssigned",
+		"principalId": "9a38b2fc-0467-495a-b332-2153b9fcbdbe",
+		"tenantId": "286b9b63-b70a-41a1-a221-d8a6c7a20a39"
+	}
+}
