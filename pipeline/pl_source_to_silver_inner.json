@@ -146,7 +146,7 @@
 					"notebookPath": "/michelin/azure_databricks_databricks/New Notebook 2026-09-30 15_59_12",
 					"baseParameters": {
 						"table_name": {
-							"value": "@activity('lookup_config_metadata').output.firstRow.table_name",
+							"value": "@activity('lookup_config_metadata').output.firstRow.source_table_name",
 							"type": "Expression"
 						},
 						"source_system": {
@@ -154,7 +154,7 @@
 							"type": "Expression"
 						},
 						"source_file_format": {
-							"value": "@activity('lookup_config_metadata').output.firstRow.file_format",
+							"value": "@activity('lookup_config_metadata').output.firstRow.source_file_format",
 							"type": "Expression"
 						},
 						"landing_timestamp": {
