@@ -48,6 +48,7 @@
 						"value": "@activity('read metadata').output.value",
 						"type": "Expression"
 					},
+					"isSequential": false,
 					"activities": [
 						{
 							"name": "pl_source_to_silver",
@@ -69,7 +70,13 @@
 									"referenceName": "pl_source_to_silver_inner",
 									"type": "PipelineReference"
 								},
-								"waitOnCompletion": true
+								"waitOnCompletion": true,
+								"parameters": {
+									"table_id": {
+										"value": "@item().table_id",
+										"type": "Expression"
+									}
+								}
 							}
 						},
 						{
@@ -92,7 +99,10 @@
 								"scripts": [
 									{
 										"type": "Query",
-										"text": "INSERT INTO ctrl.audit_log\n    (adf_run_id, table_id, stage, status, start_time)\nVALUES\n    ('123', 1, 'SOURCE_TO_SILVER', 'IN_PROGRESS', SYSUTCDATETIME());\nGO"
+										"text": {
+											"value": "INSERT INTO ctrl.audit_log\n    (adf_run_id, table_id, stage, status, start_time)\nVALUES\n    ('@{pipeline().parameters.adf_run_id}',\n     @{item().table_id},\n     'SOURCE_TO_SILVER',\n     'IN_PROGRESS',\n     SYSUTCDATETIME());",
+											"type": "Expression"
+										}
 									}
 								],
 								"scriptBlockExecutionTimeout": "02:00:00"
@@ -126,7 +136,7 @@
 									{
 										"type": "Query",
 										"text": {
-											"value": "UPDATE ctrl.audit_log\nSET status = 'FAILED' , end_time = SYSUTCDATETIME()\nwhere adf_run_id =  and table_id = ",
+											"value": "UPDATE ctrl.audit_log\nSET status = 'FAILED' , end_time = SYSUTCDATETIME()\nwhere\n    adf_run_id = '@{pipeline().parameters.adf_run_id}'\n    and table_id =  @{item().table_id};",
 											"type": "Expression"
 										}
 									}
@@ -142,6 +152,10 @@
 			"source_system": {
 				"type": "string",
 				"defaultValue": "neon_postgres"
+			},
+			"adf_run_id": {
+				"type": "string",
+				"defaultValue": "1"
 			}
 		},
 		"variables": {
