@@ -112,7 +112,7 @@
 						"type": "DatasetReference",
 						"parameters": {
 							"container": {
-								"value": "landing",
+								"value": "landings",
 								"type": "Expression"
 							},
 							"folder": {
