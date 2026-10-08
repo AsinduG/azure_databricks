@@ -193,11 +193,11 @@
 							"type": "Expression"
 						},
 						"merge_keys": {
-							"value": "@activity('lookup_config_metadata').output.firstRow.merge_keys",
+							"value": "@coalesce(activity('lookup_config_metadata').output?.firstRow?.merge_keys, '')\n",
 							"type": "Expression"
 						},
 						"load_type": {
-							"value": "@activity('lookup_config_metadata').output.firstRow.load_type",
+							"value": "@coalesce(activity('lookup_config_metadata').output?.firstRow?.load_type, '')\n",
 							"type": "Expression"
 						}
 					}
