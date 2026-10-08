@@ -50,7 +50,14 @@
 			{
 				"name": "source_to_land",
 				"type": "Copy",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "If Condition1",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"timeout": "0.12:00:00",
 					"retry": 0,
@@ -63,7 +70,7 @@
 					"source": {
 						"type": "PostgreSqlV2Source",
 						"query": {
-							"value": "select * from PUBLIC.@{activity('lookup_config_metadata').output.firstRow.source_table_name}",
+							"value": "@concat(\n    'SELECT * FROM PUBLIC.', \n    activity('lookup_config_metadata').output.firstRow.source_table_name,\n    if(\n        equals(activity('lookup_config_metadata').output.firstRow.load_type, 'FULL'),\n        '',\n        concat(' WHERE watermark_value > ', '''', variables('watermark_value'), '''')\n    )\n)",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00"
