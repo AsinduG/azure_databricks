@@ -194,7 +194,10 @@
 							"value": "@variables('start_time')",
 							"type": "Expression"
 						},
-						"table_name": "@activity('lookup_config_metadata').output.firstRow.source_table_name",
+						"table_name": {
+							"value": "@activity('lookup_config_metadata').output.firstRow.source_table_name",
+							"type": "Expression"
+						},
 						"merge_keys": {
 							"value": "@activity('lookup_config_metadata').output.firstRow.merge_keys",
 							"type": "Expression"
@@ -211,7 +214,7 @@
 				}
 			},
 			{
-				"name": "Script1",
+				"name": "write_to_audit_table",
 				"type": "Script",
 				"dependsOn": [
 					{
@@ -238,7 +241,7 @@
 						{
 							"type": "Query",
 							"text": {
-								"value": "UPDATE ctrl.audit_log\nSET status = 'SUCCESS' , end_time = SYSUTCDATETIME()\nwhere\n    adf_run_id = '@{pipeline().parameters.adf_run_id}'\n    and table_id =  @{item().table_id};",
+								"value": "UPDATE ctrl.audit_log\nSET status = 'SUCCESS' , end_time = SYSUTCDATETIME(), records_written = '@{activity('bronze_to_silver').output.record_count}'\nwhere\n    adf_run_id = '@{pipeline().parameters.adf_run_id}'\n    and table_id =  '@{pipeline().parameters.table_id}';",
 								"type": "Expression"
 							}
 						}
