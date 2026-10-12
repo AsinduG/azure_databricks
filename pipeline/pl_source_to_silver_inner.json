@@ -327,7 +327,7 @@
 											"referenceName": "Binary1",
 											"type": "DatasetReference",
 											"parameters": {
-												"folder": "sourcefiles",
+												"folder": "landings",
 												"sub_folder": {
 													"value": "@concat(activity('lookup_config_metadata').output.firstRow.source_system,\n     '/',\n     activity('lookup_config_metadata').output.firstRow.source_table_name,\n     '/',\n     variables('start_time'))",
 													"type": "Expression"
