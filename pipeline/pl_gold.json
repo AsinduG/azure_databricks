@@ -1,5 +1,5 @@
 {
-	"name": "pl_postgress_ingest_copy1",
+	"name": "pl_gold",
 	"properties": {
 		"activities": [
 			{
