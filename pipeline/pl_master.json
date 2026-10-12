@@ -47,6 +47,42 @@
 						}
 					}
 				}
+			},
+			{
+				"name": "pl_gold",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "task_adls_csv",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "task_ neon_postgres",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "pl_gold",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"source_system": "silver",
+						"adf_run_id": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
 			}
 		],
 		"parameters": {
