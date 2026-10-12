@@ -17,7 +17,11 @@
 					},
 					"waitOnCompletion": true,
 					"parameters": {
-						"source_system": "adls_csv"
+						"source_system": "adls_csv",
+						"adf_run_id": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
 					}
 				}
 			},
@@ -36,16 +40,17 @@
 					},
 					"waitOnCompletion": true,
 					"parameters": {
-						"source_system": "neon_postgres"
+						"source_system": "neon_postgres",
+						"adf_run_id": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
 					}
 				}
 			}
 		],
 		"parameters": {
-			"container": {
-				"type": "string"
-			},
-			"folder": {
+			"adf_run_id": {
 				"type": "string"
 			}
 		},
