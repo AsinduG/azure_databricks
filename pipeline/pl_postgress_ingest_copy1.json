@@ -1,0 +1,169 @@
+{
+	"name": "pl_postgress_ingest_copy1",
+	"properties": {
+		"activities": [
+			{
+				"name": "read metadata",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 2,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": {
+							"value": "SELECT  * FROM ctrl.table_config where is_active = 1 and source_system = '@{pipeline().parameters.source_system}'",
+							"type": "Expression"
+						},
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "ForEach1",
+				"type": "ForEach",
+				"dependsOn": [
+					{
+						"activity": "read metadata",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"userProperties": [],
+				"typeProperties": {
+					"items": {
+						"value": "@activity('read metadata').output.value",
+						"type": "Expression"
+					},
+					"isSequential": false,
+					"activities": [
+						{
+							"name": "insert_audit_table",
+							"type": "Script",
+							"dependsOn": [],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSqlDatabase1",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "INSERT INTO ctrl.audit_log\n    (adf_run_id, table_id, stage, status, start_time)\nVALUES\n    ('@{pipeline().parameters.adf_run_id}',\n     '@{item().table_id}',\n     'SILVER_TO_GOLD',\n     'IN_PROGRESS',\n     SYSUTCDATETIME());",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "update_audit_table",
+							"type": "Script",
+							"dependsOn": [
+								{
+									"activity": "Notebook1",
+									"dependencyConditions": [
+										"Failed"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"linkedServiceName": {
+								"referenceName": "AzureSqlDatabase1",
+								"type": "LinkedServiceReference"
+							},
+							"typeProperties": {
+								"scripts": [
+									{
+										"type": "Query",
+										"text": {
+											"value": "UPDATE ctrl.audit_log\nSET status = 'FAILED' , end_time = SYSUTCDATETIME()\nwhere\n    adf_run_id = '@{pipeline().parameters.adf_run_id}'\n    and table_id =  '@{item().table_id}';",
+											"type": "Expression"
+										}
+									}
+								],
+								"scriptBlockExecutionTimeout": "02:00:00"
+							}
+						},
+						{
+							"name": "Notebook1",
+							"type": "DatabricksNotebook",
+							"dependsOn": [
+								{
+									"activity": "insert_audit_table",
+									"dependencyConditions": [
+										"Succeeded"
+									]
+								}
+							],
+							"policy": {
+								"timeout": "0.12:00:00",
+								"retry": 0,
+								"retryIntervalInSeconds": 30,
+								"secureOutput": false,
+								"secureInput": false
+							},
+							"userProperties": [],
+							"typeProperties": {
+								"notebookPath": {
+									"value": "/michelin/azure_databricks_databricks/gold/NB_@{item().gold_table_name}",
+									"type": "Expression"
+								}
+							},
+							"linkedServiceName": {
+								"referenceName": "AzureDatabricks1",
+								"type": "LinkedServiceReference"
+							}
+						}
+					]
+				}
+			}
+		],
+		"parameters": {
+			"source_system": {
+				"type": "string",
+				"defaultValue": "adls_csv"
+			},
+			"adf_run_id": {
+				"type": "string",
+				"defaultValue": "1"
+			}
+		},
+		"variables": {
+			"val": {
+				"type": "String"
+			}
+		},
+		"annotations": []
+	}
+}
