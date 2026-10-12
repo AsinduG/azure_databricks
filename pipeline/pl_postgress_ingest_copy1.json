@@ -152,7 +152,7 @@
 		"parameters": {
 			"source_system": {
 				"type": "string",
-				"defaultValue": "adls_csv"
+				"defaultValue": "silver"
 			},
 			"adf_run_id": {
 				"type": "string",
