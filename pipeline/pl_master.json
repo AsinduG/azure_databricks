@@ -85,11 +85,6 @@
 				}
 			}
 		],
-		"parameters": {
-			"adf_run_id": {
-				"type": "string"
-			}
-		},
 		"annotations": []
 	}
 }
