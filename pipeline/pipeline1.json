@@ -50,7 +50,7 @@
 				"typeProperties": {
 					"variableName": "subject",
 					"value": {
-						"value": "@{pipeline().globalParameters.env} | @{if(greater(int(activity('check_fail_count').output.count),0),'FAILED','SUCCESS')} | MICHELIN\n",
+						"value": "@concat(\n  pipeline().globalParameters.env,\n  ' | ',\n  if(\n    greater(int(activity('check_fail_count').output.count), 0),\n    'FAILED',\n    'SUCCESS'\n  ),\n  ' | MICHELIN'\n)",
 						"type": "Expression"
 					}
 				}
