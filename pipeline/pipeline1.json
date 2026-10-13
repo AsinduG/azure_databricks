@@ -18,7 +18,7 @@
 					"source": {
 						"type": "AzureSqlSource",
 						"sqlReaderQuery": {
-							"value": "SELECT * FROM [ctrl].[audit_log] where adf_run_id = '@pipeline().parameters.pipeline_run_id'",
+							"value": "SELECT * FROM ctrl.audit_log where adf_run_id = @{pipeline().parameters.pipeline_run_id}",
 							"type": "Expression"
 						},
 						"queryTimeout": "02:00:00",
@@ -146,7 +146,7 @@
 				"typeProperties": {
 					"variableName": "logic_app_body",
 					"value": {
-						"value": "{\n\"subject\": @{variables('subject')},\n\"email_recipients\": @{pipeline().globalParameters.email_reciepient},\n\"body_header\": @{variables('body_header')},\n\"body_footer\": @{variables('body_footer')},\n\"status_table\": \n}",
+						"value": "{\n\"subject\": @{variables('subject')},\n\"email_recipients\": @{pipeline().globalParameters.email_reciepient},\n\"body_header\": @{variables('body_header')},\n\"body_footer\": @{variables('body_footer')},\n\"status_table\": activity('extract audit table').output.value\n}",
 						"type": "Expression"
 					}
 				}
