@@ -34,7 +34,14 @@
 			{
 				"name": "subject",
 				"type": "SetVariable",
-				"dependsOn": [],
+				"dependsOn": [
+					{
+						"activity": "check_fail_count",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
 				"policy": {
 					"secureOutput": false,
 					"secureInput": false
@@ -42,7 +49,10 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "subject",
-					"value": "\"PROD | SUCCESS | MICHELIN\""
+					"value": {
+						"value": "@{pipeline().globalParameters.env} | @{if(greater(int(activity('check_fail_count').output.count),0),'FAILED','SUCCESS')} | MICHELIN\n",
+						"type": "Expression"
+					}
 				}
 			},
 			{
@@ -70,7 +80,75 @@
 				"userProperties": [],
 				"typeProperties": {
 					"variableName": "body_footer",
-					"value": ""
+					"value": "For any support please contact abc@gmail.com"
+				}
+			},
+			{
+				"name": "check_fail_count",
+				"type": "Lookup",
+				"dependsOn": [],
+				"policy": {
+					"timeout": "0.12:00:00",
+					"retry": 0,
+					"retryIntervalInSeconds": 30,
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"source": {
+						"type": "AzureSqlSource",
+						"sqlReaderQuery": "SELECT count(*) as count FROM [ctrl].[audit_log] where adf_run_id = '@pipeline().parameters.pipeline_run_id'\nand status != 'SUCCESS' ",
+						"queryTimeout": "02:00:00",
+						"partitionOption": "None"
+					},
+					"dataset": {
+						"referenceName": "AzureSqlTable1",
+						"type": "DatasetReference"
+					},
+					"firstRowOnly": false
+				}
+			},
+			{
+				"name": "prepare logic app body",
+				"type": "SetVariable",
+				"dependsOn": [
+					{
+						"activity": "subject",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "body_header",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "extract audit table",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					},
+					{
+						"activity": "body_footer",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureOutput": false,
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"variableName": "logic_app_body",
+					"value": {
+						"value": "{\n\"subject\": @{variables('subject')},\n\"email_recipients\": @{pipeline().globalParameters.email_reciepient},\n\"body_header\": @{variables('body_header')},\n\"body_footer\": @{variables('body_footer')},\n\"status_table\": \n}",
+						"type": "Expression"
+					}
 				}
 			}
 		],
@@ -87,6 +165,9 @@
 				"type": "String"
 			},
 			"body_footer": {
+				"type": "String"
+			},
+			"logic_app_body": {
 				"type": "String"
 			}
 		},
