@@ -98,7 +98,7 @@
 				"typeProperties": {
 					"source": {
 						"type": "AzureSqlSource",
-						"sqlReaderQuery": "SELECT count(*) as count FROM [ctrl].[audit_log] where adf_run_id = '@pipeline().parameters.pipeline_run_id'\nand status != 'SUCCESS' ",
+						"sqlReaderQuery": "SELECT count(*) as count FROM ctrl.audit_log where adf_run_id = '@pipeline().parameters.pipeline_run_id'\nand status != 'SUCCESS' ",
 						"queryTimeout": "02:00:00",
 						"partitionOption": "None"
 					},
