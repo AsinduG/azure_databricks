@@ -83,6 +83,35 @@
 						}
 					}
 				}
+			},
+			{
+				"name": "pl_send_mail",
+				"type": "ExecutePipeline",
+				"dependsOn": [
+					{
+						"activity": "pl_gold",
+						"dependencyConditions": [
+							"Succeeded"
+						]
+					}
+				],
+				"policy": {
+					"secureInput": false
+				},
+				"userProperties": [],
+				"typeProperties": {
+					"pipeline": {
+						"referenceName": "send_mail",
+						"type": "PipelineReference"
+					},
+					"waitOnCompletion": true,
+					"parameters": {
+						"pipeline_run_id": {
+							"value": "@pipeline().RunId",
+							"type": "Expression"
+						}
+					}
+				}
 			}
 		],
 		"annotations": []
